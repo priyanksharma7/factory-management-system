@@ -19,7 +19,7 @@ int num_cars;
 int num_spaces;
 int num_workers;
 
-void *create_pack(void *args){
+void *make_worker_pack(void *args){
 	int i;
 	resource_pack *rpack = (resource_pack*) args;
 	pthread_t workers[8];
@@ -47,7 +47,6 @@ void *create_pack(void *args){
 			printf("Workers Threads Not Created for Group Error\n"); exit(0);
 		}
 
-
 	}
 
 	for(i=0;i<8;i++){
@@ -59,7 +58,7 @@ void *create_pack(void *args){
 
 int main(int argc, char** argv)
 {
-
+		printf("Sidhant Gupta 3035238400\n");
 	  if (argc < 4) {
 	  printf("Usage: %s <number of cars> <number of spaces> <number of workers>\n",
 	  argv[0]);
@@ -68,9 +67,10 @@ int main(int argc, char** argv)
 	  num_cars     = atoi(argv[1]);
 	  num_spaces   = atoi(argv[2]);
 	  num_workers  = atoi(argv[3]);
-
 	printf("Job defined, %d workers will build %d cars with %d storage spaces\n",
 			num_workers, num_cars, num_spaces);
+
+			int num_workers_remain=num_workers;
 
 	resource_pack *rpack = (struct resource_pack*) malloc(sizeof(struct resource_pack));
 	pthread_t *tid=(pthread_t*) malloc(sizeof(pthread_t)*num_cars);
@@ -80,18 +80,28 @@ int main(int argc, char** argv)
 	int i;
 	double production_time = omp_get_wtime();
 
-	for(i= 0;i < num_cars; i++){
+	for(i= 0;i < num_cars; i++){ //FLOOP1
+		int n=((num_workers/8));//MAX NUMBER OF WORKER GROUPS AVAILABLE
+		if(i>=n && i%n==0)
+		{
+			for(int v=0;v<n;v++)
+			{
+			pthread_join(tid[i-1],NULL);
+			}
+		}
 
-		int workGroupFlag = pthread_create(&tid[i],NULL,&create_pack,(void *) rpack);
+		int workGroupFlag = pthread_create(&tid[i],NULL,&make_worker_pack,(void *) rpack);
 		if (workGroupFlag)
 		{
 			printf("Work Group Threads Not Created Error\n"); exit(0);
 		}
+		num_workers_remain=num_workers_remain-8;
+
 	}
 
 	int j;
-	for(j=0;j < num_cars;j++){
-		pthread_join(tid[j],NULL);//wait for work-groups to end work
+	for(j= 0;j < num_cars; j++){
+	pthread_join(tid[j],NULL);
 	}
 
 	production_time = omp_get_wtime() - production_time;
@@ -101,6 +111,8 @@ int main(int argc, char** argv)
 	free(rpack);
 	return EXIT_SUCCESS;
 }
+
+
 
 void reportResults(double production_time) {
 	int *sem_value = malloc(sizeof(int));

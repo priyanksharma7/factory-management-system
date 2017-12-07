@@ -29,4 +29,3 @@
 #define TIME_TIRE     2
 #define TIME_BATTERY  3
 #define TIME_CAR      6
-

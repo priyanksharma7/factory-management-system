@@ -94,8 +94,6 @@ void makeBody(sem_t *sem_space, int space_limit, sem_t *sem_body,
 
 void makeCar(sem_t *sem_space, int space_limit, sem_t *sem_car,
 		sem_t *sem_window, sem_t *sem_tire, sem_t *sem_battery, sem_t *sem_body) {
-	int i;
-
 	getItem(sem_space, space_limit, sem_window);//1
 	getItem(sem_space, space_limit, sem_window);
 	getItem(sem_space, space_limit, sem_window);//3

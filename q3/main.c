@@ -19,7 +19,7 @@ int num_cars;
 int num_spaces;
 int num_workers;
 
-void *create_pack(void *args){
+void *make_worker_pack(void *args){
 	int i;
 	resource_pack *rpack = (resource_pack*) args;
 	pthread_t workers[8];
@@ -59,7 +59,7 @@ void *create_pack(void *args){
 
 int main(int argc, char** argv)
 {
-
+		printf("Sidhant Gupta 3035238400\n");
 	  if (argc < 4) {
 	  printf("Usage: %s <number of cars> <number of spaces> <number of workers>\n",
 	  argv[0]);
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 
 	for(i= 0;i < num_cars; i++){
 
-		int workGroupFlag = pthread_create(&tid[i],NULL,&create_pack,(void *) rpack);
+		int workGroupFlag = pthread_create(&tid[i],NULL,&make_worker_pack,(void *) rpack);
 		if (workGroupFlag)
 		{
 			printf("Work Group Threads Not Created Error\n"); exit(0);

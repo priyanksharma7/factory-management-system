@@ -41,13 +41,50 @@ void *make_worker_pack(void *args){
 			wpacks[i].times=1;
 		}
 
+////////////////START DEADLOCK CODE
+		int n=(num_workers/8);//MAX No of Worker Groups
+
+		if((num_spaces/n)<6)//if deadlock - update for groups
+		{
+
+			if(i>0 && i<4)
+			{
+			pthread_join(workers[i-1],NULL);
+			}
+			else if (i==4){
+			//Create Car then do rest
+			wpacks[i].jid=7;
+			wpacks[i].tid=7;
+			wpacks[i].times=1;
+			pthread_join(workers[i-1],NULL);
+			}
+			else if(i==5)
+			{
+				wpacks[i].jid=4;
+				wpacks[i].tid=4;
+				wpacks[i].times=7;
+			}
+			else if(i==6)
+			{
+				pthread_join(workers[5],NULL);
+				wpacks[i].jid=5;
+				wpacks[i].tid=5;
+				wpacks[i].times=4;
+			}
+			else if (i==7){
+			//Create Car then do rest
+			pthread_join(workers[6],NULL);
+			wpacks[i].tid=6;
+			wpacks[i].jid=6;
+			wpacks[i].times=1;
+			}
+		}
+////////////////END DEADLOCK CODE
 		int workersFlag=pthread_create(&workers[i],NULL,&work,(void *) &wpacks[i]);
 		if (workersFlag)
 		{
 			printf("Workers Threads Not Created for Group Error\n"); exit(0);
 		}
-
-
 	}
 
 	for(i=0;i<8;i++){
@@ -81,12 +118,22 @@ int main(int argc, char** argv)
 	double production_time = omp_get_wtime();
 
 	for(i= 0;i < num_cars; i++){
+		int n=((num_workers/8));//MAX NUMBER OF WORKER GROUPS AVAILABLE
 
+		////////////////START DEADLOCK CODE
+		if((num_spaces/n)<6 && i>0)//if deadlock - update for groups
+		{
+			pthread_join(tid[i-1],NULL);
+		}
+
+		////////////////END DEADLOCK CODE
 		int workGroupFlag = pthread_create(&tid[i],NULL,&make_worker_pack,(void *) rpack);
 		if (workGroupFlag)
 		{
 			printf("Work Group Threads Not Created Error\n"); exit(0);
 		}
+
+
 	}
 
 	int j;
